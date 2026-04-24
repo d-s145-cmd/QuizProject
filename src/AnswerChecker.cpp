@@ -1,68 +1,41 @@
 #include "AnswerChecker.h"
-#include <string>
-#include <cctype>
-#include <algorithm>
 
-using namespace std;
-
-string toLower(string str) {
+std::string toLower(std::string str) {
     for (char& c : str) {
-       
-        unsigned char uc = (unsigned char)c;
-        if (uc >= 192 && uc <= 223) {      
-            c = uc + 32;                   
-        } else if (uc == 168) {            
-            c = 184;                       
-        } else if (c >= 'A' && c <= 'Z') { 
-            c = c + ('a' - 'A');
+        unsigned char uc = static_cast<unsigned char>(c);
+
+        if (uc >= 192 && uc <= 223) {
+            c = static_cast<char>(uc + 32);
+        }
+        else if (uc == 168) {
+            c = static_cast<char>(184);
+        }
+        else if (c >= 'A' && c <= 'Z') {
+            c = static_cast<char>(c + ('a' - 'A'));
         }
     }
     return str;
 }
 
-string trim(const string& str) {
-    size_t start = str.find_first_not_of(" \t\n\r");
-    if (start == string::npos) return "";
-    size_t end = str.find_last_not_of(" \t\n\r");
+std::string trim(const std::string& str) {
+    std::size_t start = str.find_first_not_of(" \t\n\r");
+    if (start == std::string::npos) return "";
+
+    std::size_t end = str.find_last_not_of(" \t\n\r");
     return str.substr(start, end - start + 1);
 }
 
-bool checkAnswer(string userAnswer, string correctAnswer) {
+bool checkAnswer(std::string userAnswer, std::string correctAnswer, const std::vector<std::string>& alternatives) {
     userAnswer = trim(toLower(userAnswer));
     correctAnswer = trim(toLower(correctAnswer));
-    
+
     if (userAnswer == correctAnswer) return true;
-    
-    
-    if (correctAnswer == "избушка на курьих ножках") {
-        if (userAnswer == "изба на курьих ножках" ||
-            userAnswer == "изба бабы €ги" ||
-            userAnswer == "избушка бабы €ги") {
+
+    for (const std::string& alt : alternatives) {
+        if (userAnswer == trim(toLower(alt))) {
             return true;
         }
     }
-    
-    if (correctAnswer == "остров св€той елены") {
-        if (userAnswer == "остров св.елены") return true;
-    }
-    
-    if (correctAnswer == "позвонок птерозавра") {
-        if (userAnswer == "позвонок птеранодона") return true;
-    }
-    
-    if (correctAnswer == "флеминг") {
-        if (userAnswer == "александр флеминг" ||
-            userAnswer == "alexander fleming") {
-            return true;
-        }
-    }
-    
-    if (correctAnswer == "лупа") {
-        if (userAnswer == "лупой" ||
-            userAnswer == "увеличительное стекло") {
-            return true;
-        }
-    }
-    
+
     return false;
 }
