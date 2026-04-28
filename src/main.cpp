@@ -8,7 +8,6 @@
 #include "Question.h"
 #include "AnswerChecker.h"
 #include "ConsoleHelper.h"
-#include "ImageHelper.h"
 #include "JsonParser.h"
 #include "Quiz.h"
 #include "RussianHelper.h"
@@ -20,16 +19,16 @@ int main() {
 
     try {
         questions = JsonParser::loadQuestions("questions.json");
-        std::cout << "Вопросы загружены из questions.json\n";
+        std::cout << "Р’РѕРїСЂРѕСЃС‹ Р·Р°РіСЂСѓР¶РµРЅС‹ РёР· questions.json\n";
     }
     catch (const std::exception& e) {
-        std::cout << "Не удалось загрузить JSON: " << e.what() << "\n";
-        std::cout << "Используются встроенные вопросы.\n\n";
+        std::cout << "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ JSON: " << e.what() << "\n";
+        std::cout << "РСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РІСЃС‚СЂРѕРµРЅРЅС‹Рµ РІРѕРїСЂРѕСЃС‹.\n\n";
         questions = createQuestions();
     }
 
     if (questions.empty()) {
-        std::cout << "Ошибка: нет вопросов для викторины!\n";
+        std::cout << "РћС€РёР±РєР°: РЅРµС‚ РІРѕРїСЂРѕСЃРѕРІ РґР»СЏ РІРёРєС‚РѕСЂРёРЅС‹!\n";
         waitForEnter();
         return 1;
     }
@@ -44,12 +43,12 @@ int main() {
     }
 
     clearScreen();
-    printHeader("ИНТЕЛЛЕКТУАЛЬНАЯ ВИКТОРИНА");
+    printHeader("РРќРўР•Р›Р›Р•РљРўРЈРђР›Р¬РќРђРЇ Р’РРљРўРћР РРќРђ");
 
-    std::cout << "\nВсего вопросов: " << total << "\n";
-    std::cout << "На каждый вопрос дается 30 секунд\n";
-    std::cout << "Ответить можно досрочно — результат покажут сразу!\n\n";
-    std::cout << "Нажмите Enter чтобы начать...";
+    std::cout << "\nР’СЃРµРіРѕ РІРѕРїСЂРѕСЃРѕРІ: " << total << "\n";
+    std::cout << "РќР° РєР°Р¶РґС‹Р№ РІРѕРїСЂРѕСЃ РґР°РµС‚СЃСЏ 30 СЃРµРєСѓРЅРґ\n";
+    std::cout << "РћС‚РІРµС‚РёС‚СЊ РјРѕР¶РЅРѕ РґРѕСЃСЂРѕС‡РЅРѕ вЂ” СЂРµР·СѓР»СЊС‚Р°С‚ РїРѕРєР°Р¶СѓС‚ СЃСЂР°Р·Сѓ!\n\n";
+    std::cout << "РќР°Р¶РјРёС‚Рµ Enter С‡С‚РѕР±С‹ РЅР°С‡Р°С‚СЊ...";
     std::cin.get();
 
     for (int i = 0; i < total; i++) {
@@ -57,14 +56,14 @@ int main() {
         printQuestion(questions[i], i + 1, total);
 
         if (!questions[i].category.empty()) {
-            std::cout << "[Категория: " << questions[i].category << "]";
+            std::cout << "[РљР°С‚РµРіРѕСЂРёСЏ: " << questions[i].category << "]";
             if (questions[i].difficulty > 0) {
-                std::cout << " [Сложность: " << questions[i].difficulty << "/10]";
+                std::cout << " [РЎР»РѕР¶РЅРѕСЃС‚СЊ: " << questions[i].difficulty << "/10]";
             }
             std::cout << "\n\n";
         }
 
-        std::cout << "У вас 30 секунд! Введите ответ: ";
+        std::cout << "РЈ РІР°СЃ 30 СЃРµРєСѓРЅРґ! Р’РІРµРґРёС‚Рµ РѕС‚РІРµС‚: ";
 
         auto startTime = std::chrono::steady_clock::now();
         bool timeout = false;
@@ -76,40 +75,40 @@ int main() {
 
         if (timeout) {
             std::cout << "\n========================================\n";
-            std::cout << "ВРЕМЯ ВЫШЛО! (30 сек.)\n";
+            std::cout << "Р’Р Р•РњРЇ Р’Р«РЁР›Рћ! (30 СЃРµРє.)\n";
             std::cout << "========================================\n\n";
         }
         else {
             bool correct = checkAnswer(userAnswer, questions[i].answer, questions[i].alternatives);
 
             std::cout << "\n========================================\n";
-            std::cout << "Время ответа: " << elapsed << " секунд\n";
+            std::cout << "Р’СЂРµРјСЏ РѕС‚РІРµС‚Р°: " << elapsed << " СЃРµРєСѓРЅРґ\n";
             std::cout << "----------------------------------------\n";
 
             if (correct) {
-                std::cout << "ПРАВИЛЬНО!";
+                std::cout << "РџР РђР’РР›Р¬РќРћ!";
                 if (questions[i].difficulty > 0) {
-                    std::cout << " +" << questions[i].difficulty << " баллов";
+                    std::cout << " +" << questions[i].difficulty << " Р±Р°Р»Р»РѕРІ";
                     earnedDifficulty += questions[i].difficulty;
                 }
                 else {
-                    std::cout << " +1 балл";
+                    std::cout << " +1 Р±Р°Р»Р»";
                     earnedDifficulty += 1;
                 }
                 std::cout << "\n";
                 score++;
             }
             else {
-                std::cout << "НЕПРАВИЛЬНО!\n";
+                std::cout << "РќР•РџР РђР’РР›Р¬РќРћ!\n";
             }
 
             std::cout << "========================================\n\n";
         }
 
-        std::cout << "ПРАВИЛЬНЫЙ ОТВЕТ: " << questions[i].answer << "\n";
+        std::cout << "РџР РђР’РР›Р¬РќР«Р™ РћРўР’Р•Рў: " << questions[i].answer << "\n";
 
         if (!questions[i].alternatives.empty()) {
-            std::cout << "Также принимается: ";
+            std::cout << "РўР°РєР¶Рµ РїСЂРёРЅРёРјР°РµС‚СЃСЏ: ";
             for (std::size_t j = 0; j < questions[i].alternatives.size(); j++) {
                 if (j > 0) std::cout << ", ";
                 std::cout << questions[i].alternatives[j];
@@ -117,65 +116,43 @@ int main() {
             std::cout << "\n";
         }
 
-        std::cout << "ПОЯСНЕНИЕ: " << questions[i].explanation << "\n";
+        std::cout << "РџРћРЇРЎРќР•РќРР•: " << questions[i].explanation << "\n";
 
-        if (!questions[i].image.empty()) {
-            std::cout << "\nОткрываю картинку...\n";
-            showImage(questions[i].image);
-
-            // Обрабатываем сообщения окна 5 секунд
-            auto imgStart = std::chrono::steady_clock::now();
-            while (true) {
-                auto imgElapsed = std::chrono::duration_cast<std::chrono::seconds>(
-                    std::chrono::steady_clock::now() - imgStart).count();
-                if (imgElapsed >= 5) break;
-
-                // Pump messages для окна картинки
-                MSG msg;
-                while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-                    TranslateMessage(&msg);
-                    DispatchMessage(&msg);
-                }
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            }
-
-            closeImage();
-        }
+        // Р‘Р»РѕРє СЃ РєР°СЂС‚РёРЅРєР°РјРё РїРѕР»РЅРѕСЃС‚СЊСЋ СѓРґР°Р»РµРЅ
 
         if (i < total - 1) {
-            std::cout << "\nЧерез 5 секунд следующий вопрос...\n";
+            std::cout << "\nР§РµСЂРµР· 5 СЃРµРєСѓРЅРґ СЃР»РµРґСѓСЋС‰РёР№ РІРѕРїСЂРѕСЃ...\n";
             pauseWithCountdown(5);
         }
     }
 
     clearScreen();
-    printHeader("ИТОГИ");
+    printHeader("РРўРћР“Р");
 
-    std::cout << "\nПравильных ответов: " << score << " из " << total << "\n";
-    std::cout << "Процент: " << (score * 100 / total) << "%\n";
+    std::cout << "\nРџСЂР°РІРёР»СЊРЅС‹С… РѕС‚РІРµС‚РѕРІ: " << score << " РёР· " << total << "\n";
+    std::cout << "РџСЂРѕС†РµРЅС‚: " << (score * 100 / total) << "%\n";
 
     if (totalDifficulty > 0) {
-        std::cout << "Набрано очков: " << earnedDifficulty << " из " << totalDifficulty << "\n";
+        std::cout << "РќР°Р±СЂР°РЅРѕ РѕС‡РєРѕРІ: " << earnedDifficulty << " РёР· " << totalDifficulty << "\n";
     }
 
     std::cout << "\n";
 
     if (score == total) {
-        std::cout << "ИДЕАЛЬНО! Вы настоящий знаток!\n";
+        std::cout << "РР”Р•РђР›Р¬РќРћ! Р’С‹ РЅР°СЃС‚РѕСЏС‰РёР№ Р·РЅР°С‚РѕРє!\n";
     }
     else if (score >= total * 0.7) {
-        std::cout << "ОТЛИЧНО! Хороший результат!\n";
+        std::cout << "РћРўР›РР§РќРћ! РҐРѕСЂРѕС€РёР№ СЂРµР·СѓР»СЊС‚Р°С‚!\n";
     }
     else if (score >= total * 0.4) {
-        std::cout << "Неплохо! Есть куда расти.\n";
+        std::cout << "РќРµРїР»РѕС…Рѕ! Р•СЃС‚СЊ РєСѓРґР° СЂР°СЃС‚Рё.\n";
     }
     else {
-        std::cout << "В следующий раз все получится!\n";
+        std::cout << "Р’ СЃР»РµРґСѓСЋС‰РёР№ СЂР°Р· РІСЃРµ РїРѕР»СѓС‡РёС‚СЃСЏ!\n";
     }
 
-    std::cout << "\nСпасибо за игру!\n";
-    std::cout << "\nНажмите Enter для выхода...";
+    std::cout << "\nРЎРїР°СЃРёР±Рѕ Р·Р° РёРіСЂСѓ!\n";
+    std::cout << "\nРќР°Р¶РјРёС‚Рµ Enter РґР»СЏ РІС‹С…РѕРґР°...";
     std::cin.get();
 
     return 0;
