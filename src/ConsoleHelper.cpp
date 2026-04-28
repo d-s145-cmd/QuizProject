@@ -9,7 +9,7 @@ void clearScreen() {
     std::system("cls");
 }
 
-// Конвертация UTF-16 символа в CP1251
+
 char utf16ToCp1251(wchar_t wc) {
     if (wc < 128) return static_cast<char>(wc);
 
@@ -28,7 +28,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
     DWORD originalMode;
     GetConsoleMode(hStdin, &originalMode);
 
-    // Включаем режим без обработки строки, но С обработкой символов
+   
     SetConsoleMode(hStdin, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
 
     auto start = std::chrono::steady_clock::now();
@@ -39,7 +39,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
         int remaining = seconds - static_cast<int>(elapsed);
 
-        // Обновляем таймер
+        // ГЋГЎГ­Г®ГўГ«ГїГҐГ¬ ГІГ Г©Г¬ГҐГ°
         if (remaining != lastDisplayedSecond && remaining >= 0) {
             lastDisplayedSecond = remaining;
 
@@ -50,7 +50,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             COORD timerPos = { 0, savedPos.Y };
             SetConsoleCursorPosition(hStdout, timerPos);
 
-            std::string timerStr = "[" + std::to_string(remaining) + " сек] ";
+            std::string timerStr = "[" + std::to_string(remaining) + " Г±ГҐГЄ] ";
             std::cout << timerStr;
 
             SetConsoleCursorPosition(hStdout, savedPos);
@@ -63,7 +63,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             return "";
         }
 
-        // Читаем ввод
+        // Г—ГЁГІГ ГҐГ¬ ГўГўГ®Г¤
         DWORD eventsCount = 0;
         if (GetNumberOfConsoleInputEvents(hStdin, &eventsCount) && eventsCount > 0) {
             INPUT_RECORD record;
@@ -87,7 +87,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
                             std::cout << "\b \b";
                         }
                     }
-                    // Обычный символ
+                    // ГЋГЎГ»Г·Г­Г»Г© Г±ГЁГ¬ГўГ®Г«
                     else if (wch >= 32) {
                         char ch = utf16ToCp1251(wch);
                         if (ch != 0) {
@@ -105,13 +105,13 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
 
 void pauseWithCountdown(int seconds) {
     for (int i = seconds; i > 0; i--) {
-        std::cout << "\rСледующий вопрос через " << i << " сек.   " << std::flush;
+        std::cout << "\rГ‘Г«ГҐГ¤ГіГѕГ№ГЁГ© ГўГ®ГЇГ°Г®Г± Г·ГҐГ°ГҐГ§ " << i << " Г±ГҐГЄ.   " << std::flush;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     std::cout << std::endl;
 }
 
 void waitForEnter() {
-    std::cout << "\nНажмите Enter для продолжения...";
+    std::cout << "\nГЌГ Г¦Г¬ГЁГІГҐ Enter Г¤Г«Гї ГЇГ°Г®Г¤Г®Г«Г¦ГҐГ­ГЁГї...";
     std::cin.get();
 }
