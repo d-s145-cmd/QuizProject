@@ -9,7 +9,6 @@ void clearScreen() {
     std::system("cls");
 }
 
-
 char utf16ToCp1251(wchar_t wc) {
     if (wc < 128) return static_cast<char>(wc);
 
@@ -28,7 +27,6 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
     DWORD originalMode;
     GetConsoleMode(hStdin, &originalMode);
 
-   
     SetConsoleMode(hStdin, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
 
     auto start = std::chrono::steady_clock::now();
@@ -39,7 +37,6 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
         auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
         int remaining = seconds - static_cast<int>(elapsed);
 
-        // Îáíîâëÿåì òàéìåð
         if (remaining != lastDisplayedSecond && remaining >= 0) {
             lastDisplayedSecond = remaining;
 
@@ -50,7 +47,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             COORD timerPos = { 0, savedPos.Y };
             SetConsoleCursorPosition(hStdout, timerPos);
 
-            std::string timerStr = "[" + std::to_string(remaining) + " ñåê] ";
+            std::string timerStr = "[" + std::to_string(remaining) + " сек] ";
             std::cout << timerStr;
 
             SetConsoleCursorPosition(hStdout, savedPos);
@@ -63,7 +60,6 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             return "";
         }
 
-        // ×èòàåì ââîä
         DWORD eventsCount = 0;
         if (GetNumberOfConsoleInputEvents(hStdin, &eventsCount) && eventsCount > 0) {
             INPUT_RECORD record;
@@ -72,46 +68,42 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             if (ReadConsoleInput(hStdin, &record, 1, &read)) {
                 if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
                     wchar_t wch = record.Event.KeyEvent.uChar.UnicodeChar;
-                    WORD vk = record.Event.KeyEvent.wVirtualKeyCode;
+            WORD vk = record.Event.KeyEvent.wVirtualKeyCode;
 
-                    // Enter
-                    if (vk == VK_RETURN) {
-                        SetConsoleMode(hStdin, originalMode);
-                        std::cout << std::endl;
-                        return answer;
-                    }
-                    // Backspace
-                    else if (vk == VK_BACK) {
-                        if (!answer.empty()) {
-                            answer.pop_back();
-                            std::cout << "\b \b";
-                        }
-                    }
-                    // Îáû÷íûé ñèìâîë
-                    else if (wch >= 32) {
-                        char ch = utf16ToCp1251(wch);
-                        if (ch != 0) {
-                            answer += ch;
-                            std::cout << ch;
-                        }
-                    }
+            if (vk == VK_RETURN) {
+                SetConsoleMode(hStdin, originalMode);
+                std::cout << std::endl;
+                return answer;
+            }
+            else if (vk == VK_BACK) {
+                if (!answer.empty()) {
+                    answer.pop_back();
+            std::cout << "\b \b";
+                }
+            }
+            else if (wch >= 32) {
+                char ch = utf16ToCp1251(wch);
+                if (ch != 0) {
+            answer += ch;
+            std::cout << ch;
                 }
             }
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+}
 }
 
 void pauseWithCountdown(int seconds) {
     for (int i = seconds; i > 0; i--) {
-        std::cout << "\rÑëåäóþùèé âîïðîñ ÷åðåç " << i << " ñåê.   " << std::flush;
+        std::cout << "\rСледующий вопрос через " << i << " сек.   " << std::flush;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     std::cout << std::endl;
 }
 
 void waitForEnter() {
-    std::cout << "\nÍàæìèòå Enter äëÿ ïðîäîëæåíèÿ...";
+    std::cout << "\nНажмите Enter для продолжения...";
     std::cin.get();
 }
