@@ -8,7 +8,7 @@
 std::string JsonParser::readFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        throw std::runtime_error("Не удалось открыть файл: " + filename);
+        throw std::runtime_error("РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р»: " + filename);
     }
 
     std::stringstream buffer;
@@ -137,7 +137,7 @@ std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
 
     std::size_t arrayPos = json.find("\"questions\"");
     if (arrayPos == std::string::npos) {
-        throw std::runtime_error("Не найден массив questions в JSON файле");
+        throw std::runtime_error("Р’ JSON-С„Р°Р№Р»Рµ РЅРµ РЅР°Р№РґРµРЅ РјР°СЃСЃРёРІ questions");
     }
 
     std::size_t bracketStart = json.find("[", arrayPos);
@@ -163,7 +163,6 @@ std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
                 q.text = getStringValue(obj, "text", 0);
                 q.answer = getStringValue(obj, "answer", 0);
                 q.explanation = getStringValue(obj, "explanation", 0);
-                q.image = getStringValue(obj, "image", 0);
                 q.category = getStringValue(obj, "category", 0);
 
                 std::string diffStr = getStringValue(obj, "difficulty", 0);
