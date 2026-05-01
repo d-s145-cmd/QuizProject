@@ -4,6 +4,7 @@
 #include <thread>
 #include <string>
 #include <windows.h>
+#include <conio.h>  // Для _kbhit() и _getch()
 
 void clearScreen() {
     std::system("cls");
@@ -27,7 +28,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
     DWORD originalMode;
     GetConsoleMode(hStdin, &originalMode);
 
-    SetConsoleMode(hStdin, ENABLE_PROCESSED_INPUT | ENABLE_MOUSE_INPUT);
+    SetConsoleMode(hStdin, ENABLE_PROCESSED_INPUT);
 
     auto start = std::chrono::steady_clock::now();
     int lastDisplayedSecond = -1;
@@ -60,39 +61,30 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             return "";
         }
 
-        DWORD eventsCount = 0;
-        if (GetNumberOfConsoleInputEvents(hStdin, &eventsCount) && eventsCount > 0) {
-            INPUT_RECORD record;
-            DWORD read = 0;
+        if (_kbhit()) {
+            int ch = _getch();
 
-            if (ReadConsoleInput(hStdin, &record, 1, &read)) {
-                if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
-                    wchar_t wch = record.Event.KeyEvent.uChar.UnicodeChar;
-                    WORD vk = record.Event.KeyEvent.wVirtualKeyCode;
-
-                    if (vk == VK_RETURN) {
-                        SetConsoleMode(hStdin, originalMode);
-                        std::cout << std::endl;
-                        return answer;
-                    }
-                    else if (vk == VK_BACK) {
-                        if (!answer.empty()) {
-                            answer.pop_back();
-                            std::cout << "\b \b";
-                        }
-                    }
-                    else if (wch >= 32) {
-                        char ch = utf16ToCp1251(wch);
-                        if (ch != 0) {
-                            answer += ch;
-                            std::cout << ch;
-                        }
-                    }
+            if (ch == 13) {
+                SetConsoleMode(hStdin, originalMode);
+                std::cout << std::endl;
+                return answer;
+            }
+            else if (ch == 8) {
+                if (!answer.empty()) {
+                    answer.pop_back();
+                    std::cout << "\b \b";
                 }
             }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            else if (ch == -32 || ch == 0) {
+                _getch();
+            }
+            else if (ch >= 32) {
+                answer += static_cast<char>(ch);
+                std::cout << static_cast<char>(ch);
+            }
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
