@@ -68,31 +68,32 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
             if (ReadConsoleInput(hStdin, &record, 1, &read)) {
                 if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
                     wchar_t wch = record.Event.KeyEvent.uChar.UnicodeChar;
-            WORD vk = record.Event.KeyEvent.wVirtualKeyCode;
+                    WORD vk = record.Event.KeyEvent.wVirtualKeyCode;
 
-            if (vk == VK_RETURN) {
-                SetConsoleMode(hStdin, originalMode);
-                std::cout << std::endl;
-                return answer;
-            }
-            else if (vk == VK_BACK) {
-                if (!answer.empty()) {
-                    answer.pop_back();
-            std::cout << "\b \b";
+                    if (vk == VK_RETURN) {
+                        SetConsoleMode(hStdin, originalMode);
+                        std::cout << std::endl;
+                        return answer;
+                    }
+                    else if (vk == VK_BACK) {
+                        if (!answer.empty()) {
+                            answer.pop_back();
+                            std::cout << "\b \b";
+                        }
+                    }
+                    else if (wch >= 32) {
+                        char ch = utf16ToCp1251(wch);
+                        if (ch != 0) {
+                            answer += ch;
+                            std::cout << ch;
+                        }
+                    }
                 }
             }
-            else if (wch >= 32) {
-                char ch = utf16ToCp1251(wch);
-                if (ch != 0) {
-            answer += ch;
-            std::cout << ch;
-                }
-            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-}
 }
 
 void pauseWithCountdown(int seconds) {
