@@ -15,15 +15,15 @@
 #include "RussianHelper.h"
 
 int getPointsByDifficulty(int difficulty) {
-    if (difficulty <= 0) return 1;           
-    if (difficulty <= 3) return 1;          
-    if (difficulty <= 6) return 2;           
-    return 3;                                
+    if (difficulty <= 0) return 1;
+    if (difficulty <= 3) return 1;
+    if (difficulty <= 6) return 2;
+    return 3;
 }
 
 std::string getDifficultyLabel(int difficulty) {
     if (difficulty <= 0) return "не указана";
-    if (difficulty <= 3) return "лёгкий";
+    if (difficulty <= 3) return "легкий";
     if (difficulty <= 6) return "средний";
     return "сложный";
 }
@@ -53,12 +53,11 @@ int main() {
     std::mt19937 g(rd());
     std::shuffle(questions.begin(), questions.end(), g);
 
-    int score = 0;             
+    int score = 0;
     int total = static_cast<int>(questions.size());
-    int totalPoints = 0;        
-    int earnedPoints = 0;      
+    int totalPoints = 0;
+    int earnedPoints = 0;
 
-    
     for (const auto& q : questions) {
         totalPoints += getPointsByDifficulty(q.difficulty);
     }
@@ -70,7 +69,7 @@ int main() {
     std::cout << "Максимально возможные баллы: " << totalPoints << "\n";
     std::cout << "На каждый вопрос дается 30 секунд\n";
     std::cout << "Баллы начисляются по сложности:\n";
-    std::cout << "  Лёгкий (1-3)   = +1 балл\n";
+    std::cout << "  Легкий (1-3)   = +1 балл\n";
     std::cout << "  Средний (4-6)  = +2 балла\n";
     std::cout << "  Сложный (7-10) = +3 балла\n\n";
     std::cout << "Нажмите Enter чтобы начать...";
@@ -88,7 +87,7 @@ int main() {
         }
         std::cout << " [Сложность: " << questions[i].difficulty << "/10, " << level << "]";
         std::cout << " [+" << points << " балл";
-        if (points > 1) std::cout << "а";  
+        if (points > 1) std::cout << "а";
         std::cout << "]\n\n";
 
         std::cout << "У вас 30 секунд! Введите ответ: ";
