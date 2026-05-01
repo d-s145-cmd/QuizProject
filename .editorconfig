@@ -1,0 +1,4 @@
+root = true
+
+[*.{cpp,h}]
+charset = windows-1251
