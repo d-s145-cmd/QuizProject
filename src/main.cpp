@@ -4,6 +4,8 @@
 #include <thread>
 #include <string>
 #include <windows.h>
+#include <random>
+#include <algorithm>
 
 #include "Question.h"
 #include "AnswerChecker.h"
@@ -11,6 +13,20 @@
 #include "JsonParser.h"
 #include "Quiz.h"
 #include "RussianHelper.h"
+
+int getPointsByDifficulty(int difficulty) {
+    if (difficulty <= 0) return 1;           
+    if (difficulty <= 3) return 1;          
+    if (difficulty <= 6) return 2;           
+    return 3;                                
+}
+
+std::string getDifficultyLabel(int difficulty) {
+    if (difficulty <= 0) return "не указана";
+    if (difficulty <= 3) return "лёгкий";
+    if (difficulty <= 6) return "средний";
+    return "сложный";
+}
 
 int main() {
     setupRussianLocale();
@@ -33,21 +49,30 @@ int main() {
         return 1;
     }
 
-    int score = 0;
-    int total = static_cast<int>(questions.size());
-    int totalDifficulty = 0;
-    int earnedDifficulty = 0;
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(questions.begin(), questions.end(), g);
 
+    int score = 0;             
+    int total = static_cast<int>(questions.size());
+    int totalPoints = 0;        
+    int earnedPoints = 0;      
+
+    
     for (const auto& q : questions) {
-        totalDifficulty += q.difficulty;
+        totalPoints += getPointsByDifficulty(q.difficulty);
     }
 
     clearScreen();
     printHeader("ИНТЕЛЛЕКТУАЛЬНАЯ ВИКТОРИНА");
 
     std::cout << "\nВсего вопросов: " << total << "\n";
+    std::cout << "Максимально возможные баллы: " << totalPoints << "\n";
     std::cout << "На каждый вопрос дается 30 секунд\n";
-    std::cout << "Ответить можно досрочно — результат покажут сразу!\n\n";
+    std::cout << "Баллы начисляются по сложности:\n";
+    std::cout << "  Лёгкий (1-3)   = +1 балл\n";
+    std::cout << "  Средний (4-6)  = +2 балла\n";
+    std::cout << "  Сложный (7-10) = +3 балла\n\n";
     std::cout << "Нажмите Enter чтобы начать...";
     std::cin.get();
 
@@ -55,13 +80,16 @@ int main() {
         clearScreen();
         printQuestion(questions[i], i + 1, total);
 
+        int points = getPointsByDifficulty(questions[i].difficulty);
+        std::string level = getDifficultyLabel(questions[i].difficulty);
+
         if (!questions[i].category.empty()) {
             std::cout << "[Категория: " << questions[i].category << "]";
-            if (questions[i].difficulty > 0) {
-                std::cout << " [Сложность: " << questions[i].difficulty << "/10]";
-            }
-            std::cout << "\n\n";
         }
+        std::cout << " [Сложность: " << questions[i].difficulty << "/10, " << level << "]";
+        std::cout << " [+" << points << " балл";
+        if (points > 1) std::cout << "а";  
+        std::cout << "]\n\n";
 
         std::cout << "У вас 30 секунд! Введите ответ: ";
 
@@ -86,22 +114,15 @@ int main() {
             std::cout << "----------------------------------------\n";
 
             if (correct) {
-                std::cout << "ПРАВИЛЬНО!";
-                if (questions[i].difficulty > 0) {
-                    std::cout << " +" << questions[i].difficulty << " баллов";
-                    earnedDifficulty += questions[i].difficulty;
-                }
-                else {
-                    std::cout << " +1 балл";
-                    earnedDifficulty += 1;
-                }
+                std::cout << "ПРАВИЛЬНО! +" << points << " балл";
+                if (points > 1) std::cout << "а";
                 std::cout << "\n";
+                earnedPoints += points;
                 score++;
             }
             else {
                 std::cout << "НЕПРАВИЛЬНО!\n";
             }
-
             std::cout << "========================================\n\n";
         }
 
@@ -118,7 +139,6 @@ int main() {
 
         std::cout << "ПОЯСНЕНИЕ: " << questions[i].explanation << "\n";
 
-       
         if (i < total - 1) {
             std::cout << "\nЧерез 5 секунд следующий вопрос...\n";
             pauseWithCountdown(5);
@@ -129,30 +149,29 @@ int main() {
     printHeader("ИТОГИ");
 
     std::cout << "\nПравильных ответов: " << score << " из " << total << "\n";
-    std::cout << "Процент: " << (score * 100 / total) << "%\n";
+    std::cout << "Процент ответов: " << (score * 100 / total) << "%\n";
+    std::cout << "----------------------------------------\n";
+    std::cout << "Набрано очков: " << earnedPoints << " из " << totalPoints << "\n";
 
-    if (totalDifficulty > 0) {
-        std::cout << "Набрано очков: " << earnedDifficulty << " из " << totalDifficulty << "\n";
+    if (totalPoints > 0) {
+        double percentPoints = 100.0 * earnedPoints / totalPoints;
+        std::cout << "Эффективность набора: " << percentPoints << "%\n";
     }
 
     std::cout << "\n";
-
     if (score == total) {
         std::cout << "ИДЕАЛЬНО! Вы настоящий знаток!\n";
     }
     else if (score >= total * 0.7) {
-        std::cout << "ОТЛИЧНО! Хороший результат!\n";
+        std::cout << "Отличный результат!\n";
     }
     else if (score >= total * 0.4) {
-        std::cout << "Неплохо! Есть куда расти.\n";
+        std::cout << "Неплохо, есть куда расти.\n";
     }
     else {
-        std::cout << "В следующий раз все получится!\n";
+        std::cout << "Стоит подучить материал...\n";
     }
 
-    std::cout << "\nСпасибо за игру!\n";
-    std::cout << "\nНажмите Enter для выхода...";
-    std::cin.get();
-
+    waitForEnter();
     return 0;
 }
