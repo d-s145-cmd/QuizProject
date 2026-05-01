@@ -5,7 +5,6 @@
 #include <cctype>
 #include <windows.h>
 
-
 std::string JsonParser::readFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -173,7 +172,6 @@ std::size_t JsonParser::findNextObject(const std::string& json, std::size_t star
     return std::string::npos;
 }
 
-
 std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
     std::vector<Question> questions;
     std::string json = readFile(filename);
@@ -209,9 +207,7 @@ std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
                 q.answer = getStringValue(obj, "answer", 0);
                 q.explanation = getStringValue(obj, "explanation", 0);
                 q.category = getStringValue(obj, "category", 0);
-
                 q.difficulty = getIntValue(obj, "difficulty", 0);
-
                 q.alternatives = getStringArray(obj, "alternatives", 0);
 
                 if (!q.text.empty() && !q.answer.empty()) {
