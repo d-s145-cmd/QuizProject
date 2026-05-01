@@ -2,9 +2,6 @@
 #include "Question.h"
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <random>
-#include <chrono>
 
 std::vector<Question> createQuestions() {
     std::vector<Question> questions;
@@ -15,7 +12,7 @@ std::vector<Question> createQuestions() {
     q1.alternatives = { "изба на курьих ножках", "изба бабы яги", "избушка бабы яги" };
     q1.explanation = "Архитекторы и орнитологи не могли решить, чей это объект исследования.";
     q1.category = "Искусство";
-    q1.difficulty = 5;
+    q1.difficulty = 5;  
     questions.push_back(q1);
 
     Question q2;
@@ -24,7 +21,7 @@ std::vector<Question> createQuestions() {
     q2.alternatives = { "остров св.елены" };
     q2.explanation = "Замок рассматривался как кандидат на место заточения Наполеона.";
     q2.category = "История";
-    q2.difficulty = 7;
+    q2.difficulty = 7;  
     questions.push_back(q2);
 
     Question q3;
@@ -33,7 +30,7 @@ std::vector<Question> createQuestions() {
     q3.alternatives = { "позвонок птеранодона" };
     q3.explanation = "Зуб застрял между шейными позвонками летящего птеранодона.";
     q3.category = "Палеонтология";
-    q3.difficulty = 8;
+    q3.difficulty = 8;  
     questions.push_back(q3);
 
     Question q4;
@@ -42,7 +39,7 @@ std::vector<Question> createQuestions() {
     q4.alternatives = { "александр флеминг", "alexander fleming" };
     q4.explanation = "Александр Флеминг открыл пенициллин благодаря тому, что вовремя не вымыл лабораторную посуду.";
     q4.category = "Наука";
-    q4.difficulty = 5;
+    q4.difficulty = 5;  
     questions.push_back(q4);
 
     Question q5;
@@ -51,12 +48,8 @@ std::vector<Question> createQuestions() {
     q5.alternatives = { "лупой", "увеличительное стекло" };
     q5.explanation = "Монета посвящена Шерлоку Холмсу, который часто пользовался лупой для расследований.";
     q5.category = "Литература";
-    q5.difficulty = 6;
+    q5.difficulty = 6;  
     questions.push_back(q5);
-
-    unsigned seed = static_cast<unsigned>(std::chrono::steady_clock::now().time_since_epoch().count());
-    std::default_random_engine rng(seed);
-    std::shuffle(questions.begin(), questions.end(), rng);
 
     return questions;
 }
@@ -75,7 +68,7 @@ void printQuestion(Question q, int num, int total) {
 void printResult(bool correct) {
     if (correct) {
         std::cout << "\n========================================\n";
-        std::cout << "ПРАВИЛЬНО! +1 балл\n";
+        std::cout << "ПРАВИЛЬНО!\n";
         std::cout << "========================================\n\n";
     }
     else {
