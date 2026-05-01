@@ -5,6 +5,7 @@
 #include <cctype>
 #include <windows.h>
 
+
 std::string JsonParser::readFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -57,6 +58,48 @@ std::string JsonParser::getStringValue(const std::string& json, const std::strin
     if (quoteEnd == std::string::npos) return "";
 
     return json.substr(quoteStart + 1, quoteEnd - quoteStart - 1);
+}
+
+int JsonParser::getIntValue(const std::string& json, const std::string& key, std::size_t startPos) {
+    std::string searchKey = "\"" + key + "\"";
+    std::size_t keyPos = json.find(searchKey, startPos);
+    if (keyPos == std::string::npos) return 0;
+
+    std::size_t colonPos = json.find(":", keyPos);
+    if (colonPos == std::string::npos) return 0;
+
+    std::size_t valPos = colonPos + 1;
+    skipWhitespace(json, valPos);
+
+    if (valPos >= json.length()) return 0;
+
+    if (json[valPos] == '"') {
+        std::size_t quoteEnd = json.find("\"", valPos + 1);
+        if (quoteEnd == std::string::npos) return 0;
+        std::string numStr = json.substr(valPos + 1, quoteEnd - valPos - 1);
+        if (numStr.empty()) return 0;
+        try {
+            return std::stoi(numStr);
+        }
+        catch (...) {
+            return 0;
+        }
+    }
+
+    std::size_t endPos = valPos;
+    while (endPos < json.length() && (json[endPos] >= '0' && json[endPos] <= '9')) {
+        endPos++;
+    }
+
+    if (endPos == valPos) return 0;
+
+    std::string numStr = json.substr(valPos, endPos - valPos);
+    try {
+        return std::stoi(numStr);
+    }
+    catch (...) {
+        return 0;
+    }
 }
 
 std::vector<std::string> JsonParser::getStringArray(const std::string& json, const std::string& key, std::size_t startPos) {
@@ -126,8 +169,10 @@ std::size_t JsonParser::findNextObject(const std::string& json, std::size_t star
         }
         pos++;
     }
+
     return std::string::npos;
 }
+
 
 std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
     std::vector<Question> questions;
@@ -165,10 +210,7 @@ std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
                 q.explanation = getStringValue(obj, "explanation", 0);
                 q.category = getStringValue(obj, "category", 0);
 
-                std::string diffStr = getStringValue(obj, "difficulty", 0);
-                if (!diffStr.empty()) {
-                    q.difficulty = std::stoi(diffStr);
-                }
+                q.difficulty = getIntValue(obj, "difficulty", 0);
 
                 q.alternatives = getStringArray(obj, "alternatives", 0);
 
