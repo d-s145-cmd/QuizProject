@@ -118,8 +118,7 @@ int main() {
 
         std::cout << "ПОЯСНЕНИЕ: " << questions[i].explanation << "\n";
 
-        // Блок с картинками полностью удален
-
+       
         if (i < total - 1) {
             std::cout << "\nЧерез 5 секунд следующий вопрос...\n";
             pauseWithCountdown(5);
