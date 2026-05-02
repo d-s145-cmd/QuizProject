@@ -1,102 +1,81 @@
+#define NOMINMAX
+
 #include "ConsoleHelper.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <string>
+#include <atomic>
 #include <windows.h>
-#include <conio.h>  // Для _kbhit() и _getch()
 
 void clearScreen() {
     std::system("cls");
 }
 
-char utf16ToCp1251(wchar_t wc) {
-    if (wc < 128) return static_cast<char>(wc);
+void waitForKeyPress() {
+    std::string temp;
+    std::getline(std::cin, temp);
+}
 
-    char result[2] = { 0 };
-    WideCharToMultiByte(1251, 0, &wc, 1, result, 2, NULL, NULL);
-    return result[0];
+
+void setTerminalTitle(const std::string& title) {
+    
+    std::cout << "\033]0;" << title << "\007" << std::flush;
 }
 
 std::string getInputWithTimer(int seconds, bool& timeout) {
     timeout = false;
     std::string answer;
-    answer.reserve(256);
 
-    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
-    HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD originalMode;
-    GetConsoleMode(hStdin, &originalMode);
+    std::cout << "У вас " << seconds << " секунд! Введите ответ: ";
+    std::cout.flush();
 
-    SetConsoleMode(hStdin, ENABLE_PROCESSED_INPUT);
+    
+    struct TitleGuard {
+        ~TitleGuard() { setTerminalTitle("ВИКТОРИНА"); }
+    } guard;
 
-    auto start = std::chrono::steady_clock::now();
-    int lastDisplayedSecond = -1;
+    std::atomic<bool> done(false);
 
-    while (true) {
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start).count();
-        int remaining = seconds - static_cast<int>(elapsed);
+    
+    std::thread timer([&]() {
+        auto start = std::chrono::steady_clock::now();
+        while (!done.load()) {
+            auto now = std::chrono::steady_clock::now();
+            int remaining = seconds - static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(now - start).count());
 
-        if (remaining != lastDisplayedSecond && remaining >= 0) {
-            lastDisplayedSecond = remaining;
-
-            CONSOLE_SCREEN_BUFFER_INFO csbi;
-            GetConsoleScreenBufferInfo(hStdout, &csbi);
-            COORD savedPos = csbi.dwCursorPosition;
-
-            COORD timerPos = { 0, savedPos.Y };
-            SetConsoleCursorPosition(hStdout, timerPos);
-
-            std::string timerStr = "[" + std::to_string(remaining) + " сек] ";
-            std::cout << timerStr;
-
-            SetConsoleCursorPosition(hStdout, savedPos);
+            if (remaining <= 0) {
+                timeout = true;
+                done = true;
+                break;
+            }
+            setTerminalTitle("Осталось: " + std::to_string(remaining) + " сек");
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
+        });
 
-        if (remaining <= 0) {
-            timeout = true;
-            SetConsoleMode(hStdin, originalMode);
-            std::cout << std::endl;
-            return "";
-        }
+    
+    std::getline(std::cin, answer);
 
-        if (_kbhit()) {
-            int ch = _getch();
+    done = true;
+    timer.join();
 
-            if (ch == 13) {
-                SetConsoleMode(hStdin, originalMode);
-                std::cout << std::endl;
-                return answer;
-            }
-            else if (ch == 8) {
-                if (!answer.empty()) {
-                    answer.pop_back();
-                    std::cout << "\b \b";
-                }
-            }
-            else if (ch == -32 || ch == 0) {
-                _getch();
-            }
-            else if (ch >= 32) {
-                answer += static_cast<char>(ch);
-                std::cout << static_cast<char>(ch);
-            }
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+    return answer;
 }
 
 void pauseWithCountdown(int seconds) {
     for (int i = seconds; i > 0; i--) {
+        setTerminalTitle("Следующий вопрос через " + std::to_string(i) + " сек");
         std::cout << "\rСледующий вопрос через " << i << " сек.   " << std::flush;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    std::cout << std::endl;
+    setTerminalTitle("ВИКТОРИНА");
+    std::cout << "\n";
 }
 
 void waitForEnter() {
     std::cout << "\nНажмите Enter для продолжения...";
-    std::cin.get();
+    std::cout.flush();
+    std::string temp;
+    std::getline(std::cin, temp);
 }
