@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 std::string JsonParser::readFile(const std::string& filename) {
-    // ВАЖНО: std::ios::binary отключает переводы кодировок при чтении файла
+    
     std::ifstream file(filename, std::ios::in | std::ios::binary);
     if (!file.is_open()) {
         throw std::runtime_error("Не удалось открыть файл: " + filename);
