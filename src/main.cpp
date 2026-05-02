@@ -72,8 +72,9 @@ int main() {
     std::cout << "  Легкий (1-3)   = +1 балл\n";
     std::cout << "  Средний (4-6)  = +2 балла\n";
     std::cout << "  Сложный (7-10) = +3 балла\n\n";
+
     std::cout << "Нажмите Enter чтобы начать...";
-    std::cin.get();
+    waitForKeyPress();
 
     for (int i = 0; i < total; i++) {
         clearScreen();
@@ -89,8 +90,6 @@ int main() {
         std::cout << " [+" << points << " балл";
         if (points > 1) std::cout << "а";
         std::cout << "]\n\n";
-
-        std::cout << "У вас 30 секунд! Введите ответ: ";
 
         auto startTime = std::chrono::steady_clock::now();
         bool timeout = false;
