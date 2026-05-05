@@ -70,6 +70,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -78,6 +79,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -94,6 +96,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -108,6 +111,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,32 +128,40 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  
+ 
   <ItemGroup>
-    <ClCompile Include="AnswerChecker.cpp" />
-    <ClCompile Include="ConsoleHelper.cpp" />
-    <ClCompile Include="JsonParser.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="RussianHelper.cpp" />
+    <ClCompile Include="src\AnswerChecker.cpp" />
+    <ClCompile Include="src\ConsoleHelper.cpp" />
+    <ClCompile Include="src\JsonParser.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\RussianHelper.cpp" />
   </ItemGroup>
+  
+  
   <ItemGroup>
-    <ClInclude Include="AnswerChecker.h" />
-    <ClInclude Include="ConsoleHelper.h" />
-    <ClInclude Include="JsonParser.h" />
-    <ClInclude Include="Question.h" />
-    <ClInclude Include="Quiz.h" />
-    <ClInclude Include="RussianHelper.h" />
+    <ClInclude Include="include\AnswerChecker.h" />
+    <ClInclude Include="include\ConsoleHelper.h" />
+    <ClInclude Include="include\JsonParser.h" />
+    <ClInclude Include="include\Question.h" />
+    <ClInclude Include="include\Quiz.h" />
+    <ClInclude Include="include\RussianHelper.h" />
   </ItemGroup>
+  
+  
   <ItemGroup>
-    <None Include="questions.json" />
-    <None Include=".gitattributes" />
-    <None Include=".editorconfig" />
+    <None Include="question.json" />
+    <None Include="README.md" />
+    <None Include=".gitignore" />
   </ItemGroup>
+  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
