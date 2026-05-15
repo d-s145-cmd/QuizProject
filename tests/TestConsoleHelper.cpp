@@ -4,15 +4,11 @@
 #include <string>
 #include <windows.h>
 
-
-
 #define TEST(name) std::cout << "Тест: " << name << "... ";
 
 void runTests() {
     int passed = 0;
     int total = 0;
-
-    
 
     TEST("Идеальное совпадение (нижний регистр)") {
         total++;
@@ -77,7 +73,6 @@ void runTests() {
         passed++;
     }
 
-    
     std::cout << "\n========================================\n";
     std::cout << "Всего тестов: " << total << "\n";
     std::cout << "Пройдено: " << passed << "\n";
@@ -91,15 +86,11 @@ void runTests() {
 }
 
 int main() {
-    
     SetConsoleOutputCP(CP_UTF8);
 
     std::cout << "--- ЗАПУСК ТЕСТОВ CONSOLE HELPER ---\n\n";
 
     runTests();
-
-    std::cout << "\nНажмите Enter для выхода...";
-    std::cin.get();
 
     return 0;
 }
