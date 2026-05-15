@@ -3,20 +3,29 @@
 #include <sstream>
 #include <stdexcept>
 
+
 std::string JsonParser::readFile(const std::string& filename) {
-    
     std::ifstream file(filename, std::ios::in | std::ios::binary);
+
     if (!file.is_open()) {
         throw std::runtime_error("Не удалось открыть файл: " + filename);
     }
+
     std::stringstream buffer;
     buffer << file.rdbuf();
+
     return buffer.str();
 }
 
 void JsonParser::skipWhitespace(const std::string& str, std::size_t& pos) {
-    while (pos < str.length() && (str[pos] == ' ' || str[pos] == '\n' || str[pos] == '\r' || str[pos] == '\t')) {
-        pos++;
+    while (pos < str.length()) {
+        char c = str[pos];
+        if (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+            pos++;
+        }
+        else {
+            break;
+        }
     }
 }
 
@@ -24,12 +33,16 @@ std::string JsonParser::getStringValue(const std::string& json, const std::strin
     std::string searchKey = "\"" + key + "\"";
     std::size_t keyPos = json.find(searchKey, startPos);
     if (keyPos == std::string::npos) return "";
+
     std::size_t colonPos = json.find(":", keyPos);
     if (colonPos == std::string::npos) return "";
+
     std::size_t quoteStart = json.find("\"", colonPos);
     if (quoteStart == std::string::npos) return "";
+
     std::size_t quoteEnd = json.find("\"", quoteStart + 1);
     if (quoteEnd == std::string::npos) return "";
+
     return json.substr(quoteStart + 1, quoteEnd - quoteStart - 1);
 }
 
@@ -37,39 +50,57 @@ int JsonParser::getIntValue(const std::string& json, const std::string& key, std
     std::string searchKey = "\"" + key + "\"";
     std::size_t keyPos = json.find(searchKey, startPos);
     if (keyPos == std::string::npos) return 0;
+
     std::size_t colonPos = json.find(":", keyPos);
     if (colonPos == std::string::npos) return 0;
+
     std::size_t valPos = colonPos + 1;
     skipWhitespace(json, valPos);
+
     if (valPos >= json.length()) return 0;
+
     if (json[valPos] == '"') {
         std::size_t quoteEnd = json.find("\"", valPos + 1);
         if (quoteEnd == std::string::npos) return 0;
+
         std::string numStr = json.substr(valPos + 1, quoteEnd - valPos - 1);
         if (numStr.empty()) return 0;
+
         try { return std::stoi(numStr); }
         catch (...) { return 0; }
     }
+
     std::size_t endPos = valPos;
-    while (endPos < json.length() && (json[endPos] >= '0' && json[endPos] <= '9')) { endPos++; }
+    while (endPos < json.length() && json[endPos] >= '0' && json[endPos] <= '9') {
+        endPos++;
+    }
+
     if (endPos == valPos) return 0;
+
     try { return std::stoi(json.substr(valPos, endPos - valPos)); }
     catch (...) { return 0; }
 }
 
 std::vector<std::string> JsonParser::getStringArray(const std::string& json, const std::string& key, std::size_t startPos) {
     std::vector<std::string> result;
+
     std::string searchKey = "\"" + key + "\"";
     std::size_t keyPos = json.find(searchKey, startPos);
     if (keyPos == std::string::npos) return result;
+
     std::size_t colonPos = json.find(":", keyPos);
     if (colonPos == std::string::npos) return result;
+
     std::size_t bracketStart = json.find("[", colonPos);
     if (bracketStart == std::string::npos) return result;
+
     std::size_t pos = bracketStart + 1;
+
     while (pos < json.length()) {
         skipWhitespace(json, pos);
+
         if (pos >= json.length() || json[pos] == ']') break;
+
         if (json[pos] == '"') {
             std::size_t quoteEnd = json.find("\"", pos + 1);
             if (quoteEnd != std::string::npos) {
@@ -77,10 +108,17 @@ std::vector<std::string> JsonParser::getStringArray(const std::string& json, con
                 pos = quoteEnd + 1;
             }
         }
-        else { pos++; }
+        else {
+            pos++; 
+        }
+
         skipWhitespace(json, pos);
-        if (pos < json.length() && json[pos] == ',') pos++;
+
+        if (pos < json.length() && json[pos] == ',') {
+            pos++;
+        }
     }
+
     return result;
 }
 
@@ -88,17 +126,29 @@ std::size_t JsonParser::findNextObject(const std::string& json, std::size_t star
     std::size_t pos = start;
     int braceCount = 0;
     bool inObject = false;
+
     while (pos < json.length()) {
         if (json[pos] == '{') {
-            if (!inObject) { inObject = true; braceCount = 1; }
-            else { braceCount++; }
+            if (!inObject) {
+                inObject = true;
+                braceCount = 1; 
+            }
+            else {
+                braceCount++;   
+            }
         }
         else if (json[pos] == '}') {
-            if (inObject) { braceCount--; if (braceCount == 0) return pos + 1; }
+            if (inObject) {
+                braceCount--;   
+                if (braceCount == 0) {
+                    return pos + 1; 
+                }
+            }
         }
         pos++;
     }
-    return std::string::npos;
+
+    return std::string::npos; 
 }
 
 std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
@@ -106,19 +156,27 @@ std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
     std::string json = readFile(filename);
 
     std::size_t arrayPos = json.find("\"questions\"");
-    if (arrayPos == std::string::npos) throw std::runtime_error("В JSON не найден массив questions");
+    if (arrayPos == std::string::npos) {
+        throw std::runtime_error("В JSON не найден массив questions");
+    }
+
     std::size_t bracketStart = json.find("[", arrayPos);
     if (bracketStart == std::string::npos) return questions;
+
     std::size_t pos = bracketStart + 1;
 
     while (true) {
         skipWhitespace(json, pos);
+
         if (pos >= json.length() || json[pos] == ']') break;
+
         if (json[pos] == '{') {
             std::size_t objStart = pos;
             std::size_t objEnd = findNextObject(json, objStart);
+
             if (objEnd != std::string::npos) {
                 std::string obj = json.substr(objStart, objEnd - objStart);
+
                 Question q;
                 q.text = getStringValue(obj, "text", 0);
                 q.answer = getStringValue(obj, "answer", 0);
@@ -126,14 +184,28 @@ std::vector<Question> JsonParser::loadQuestions(const std::string& filename) {
                 q.category = getStringValue(obj, "category", 0);
                 q.difficulty = getIntValue(obj, "difficulty", 0);
                 q.alternatives = getStringArray(obj, "alternatives", 0);
-                if (!q.text.empty() && !q.answer.empty()) questions.push_back(q);
-                pos = objEnd;
+
+                if (!q.text.empty() && !q.answer.empty()) {
+                    questions.push_back(q);
+                }
+
+                pos = objEnd; 
             }
-            else break;
+            else {
+                break; 
+            }
         }
-        else pos++;
+        else {
+            pos++;
+        }
+
         skipWhitespace(json, pos);
-        if (pos < json.length() && json[pos] == ',') pos++;
+
+        
+        if (pos < json.length() && json[pos] == ',') {
+            pos++;
+        }
     }
+
     return questions;
 }
