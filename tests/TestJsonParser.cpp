@@ -5,8 +5,6 @@
 #include <cassert>
 #include <windows.h>
 
-
-
 void createTestFile(const std::string& filename, const std::string& content) {
     std::ofstream file(filename, std::ios::out | std::ios::binary);
     file << content;
@@ -19,12 +17,10 @@ void deleteTestFile(const std::string& filename) {
 
 #define TEST(name) std::cout << "Тест: " << name << "... ";
 
-
 void runTests() {
     int passed = 0;
     int total = 0;
     const std::string testFile = "temp_test_quiz.json";
-
 
     TEST("Отсутствующий файл (должен выбросить исключение)") {
         total++;
@@ -62,7 +58,6 @@ void runTests() {
         assert(questions.size() == 0);
         std::cout << "ПРОЙДЕН\n"; passed++;
     }
-
 
     TEST("Полностью заполненный вопрос (все поля)") {
         total++;
@@ -108,8 +103,8 @@ void runTests() {
         assert(questions.size() == 1);
         assert(questions[0].text == "2+2?");
         assert(questions[0].answer == "4");
-        assert(questions[0].explanation.empty() == true); 
-        assert(questions[0].difficulty == 0);            
+        assert(questions[0].explanation.empty() == true);
+        assert(questions[0].difficulty == 0);
         assert(questions[0].alternatives.empty() == true);
         std::cout << "ПРОЙДЕН\n"; passed++;
     }
@@ -131,7 +126,6 @@ void runTests() {
         assert(questions[0].answer == "A1");
         std::cout << "ПРОЙДЕН\n"; passed++;
     }
-
 
     TEST("ФИЧА: Сложность передана как строка '5' (ваш getIntValue это умеет)") {
         total++;
@@ -210,9 +204,6 @@ int main() {
     runTests();
 
     deleteTestFile("temp_test_quiz.json");
-
-    std::cout << "\nНажмите Enter для выхода...";
-    std::cin.get();
 
     return 0;
 }
