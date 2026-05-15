@@ -7,6 +7,8 @@
 #include <string>
 #include <atomic>
 #include <windows.h>
+#include <algorithm>  
+#include <cwctype>   
 
 void clearScreen() {
     std::system("cls");
@@ -21,7 +23,7 @@ void waitForKeyPress() {
     wchar_t buffer[2];
     DWORD read = 0;
     ReadConsoleW(hStdin, buffer, 1, &read, NULL);
-    FlushConsoleInputBuffer(hStdin); 
+    FlushConsoleInputBuffer(hStdin);
 }
 
 std::string getInputWithTimer(int seconds, bool& timeout) {
@@ -35,9 +37,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
     std::atomic<bool> done(false);
 
     std::thread inputThread([&wanswer, &done, hStdin]() {
-        
         FlushConsoleInputBuffer(hStdin);
-
         while (true) {
             wchar_t buffer[256];
             DWORD charsRead = 0;
@@ -46,19 +46,18 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
                 buffer[charsRead] = L'\0';
                 std::wstring wstr(buffer);
 
-                
                 while (!wstr.empty() && (wstr.back() == L'\r' || wstr.back() == L'\n' || wstr.back() == L' ')) {
                     wstr.pop_back();
                 }
 
                 if (!wstr.empty()) {
-                    wanswer = wstr; 
+                    wanswer = wstr;
                     done = true;
-                    break; 
+                    break;
                 }
             }
             else {
-                break; 
+                break;
             }
         }
         });
@@ -72,7 +71,7 @@ std::string getInputWithTimer(int seconds, bool& timeout) {
         if (remaining <= 0) {
             timeout = true;
             done = true;
-            FlushConsoleInputBuffer(hStdin); 
+            FlushConsoleInputBuffer(hStdin);
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             break;
         }
@@ -110,4 +109,23 @@ void waitForEnter() {
     wchar_t buffer[256];
     DWORD read = 0;
     ReadConsoleW(hStdin, buffer, 255, &read, NULL);
+}
+
+
+bool compareIgnoreCase(const std::string& str1, const std::string& str2) {
+    auto toLowerUtf8 = [](const std::string& str) -> std::wstring {
+        if (str.empty()) return L"";
+
+        int size = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+        if (size <= 1) return L"";
+
+        std::wstring wstr(size - 1, 0);
+        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &wstr[0], size);
+
+        std::transform(wstr.begin(), wstr.end(), wstr.begin(), std::towlower);
+
+        return wstr;
+        };
+
+    return toLowerUtf8(str1) == toLowerUtf8(str2);
 }
