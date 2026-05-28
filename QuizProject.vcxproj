@@ -156,19 +156,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\ConsoleHelper.cpp" />
-    <ClCompile Include="src\Game.cpp" />
-    <ClCompile Include="src\JsonParser.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\RussianHelper.cpp" />
+    <ClCompile Include="ConsoleHelper.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="JsonParser.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="RussianHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ConsoleHelper.h" />
-    <ClInclude Include="include\Game.h" />
-    <ClInclude Include="include\JsonParser.h" />
-    <ClInclude Include="include\Question.h" />
-    <ClInclude Include="include\Quiz.h" />
-    <ClInclude Include="include\RussianHelper.h" />
+    <ClInclude Include="ConsoleHelper.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="JsonParser.h" />
+    <ClInclude Include="Question.h" />
+    <ClInclude Include="Quiz.h" />
+    <ClInclude Include="RussianHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="questions.json">
